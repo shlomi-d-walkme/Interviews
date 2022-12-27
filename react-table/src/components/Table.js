@@ -1,49 +1,50 @@
-import * as React from 'react'
-import { alpha } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import MuiTable from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import MuiTableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import TableSortLabel from '@mui/material/TableSortLabel'
-import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
-import Checkbox from '@mui/material/Checkbox'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
-import DeleteIcon from '@mui/icons-material/Delete'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import { visuallyHidden } from '@mui/utils'
+import React, { useState } from "react";
+import { alpha } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import MuiTable from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import MuiTableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TableSortLabel from "@mui/material/TableSortLabel";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import Checkbox from "@mui/material/Checkbox";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { visuallyHidden } from "@mui/utils";
+import _ from "lodash";
 
 const headCells = [
   {
-    id: 'name',
+    id: "name",
     numeric: false,
     disablePadding: true,
-    label: 'Name',
+    label: "Name",
   },
   {
-    id: 'email',
+    id: "email",
     numeric: true,
     disablePadding: false,
-    label: 'Email',
+    label: "Email",
   },
   {
-    id: 'age',
+    id: "age",
     numeric: true,
     disablePadding: false,
-    label: 'Age',
+    label: "Age",
   },
-]
+];
 
 function TableHead(props) {
-  const { order = 'name', orderBy = 'asc', onRequestSort } = props
+  const { order = "name", orderBy = "asc", onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property)
-  }
+    onRequestSort(event, property);
+  };
 
   return (
     <MuiTableHead>
@@ -54,19 +55,19 @@ function TableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'normal'}
+            align={headCell.numeric ? "right" : "left"}
+            padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
+              direction={orderBy === headCell.id ? order : "asc"}
               onClick={createSortHandler(headCell.id)}
             >
               {headCell.label}
               {orderBy === headCell.id ? (
                 <Box component="span" sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  {order === "desc" ? "sorted descending" : "sorted ascending"}
                 </Box>
               ) : null}
             </TableSortLabel>
@@ -74,11 +75,11 @@ function TableHead(props) {
         ))}
       </TableRow>
     </MuiTableHead>
-  )
+  );
 }
 
 function TableToolbar(props) {
-  const { numSelected } = props
+  const { numSelected } = props;
 
   return (
     <Toolbar
@@ -89,14 +90,14 @@ function TableToolbar(props) {
           bgcolor: (theme) =>
             alpha(
               theme.palette.primary.main,
-              theme.palette.action.activatedOpacity,
+              theme.palette.action.activatedOpacity
             ),
         }),
       }}
     >
       {numSelected > 0 ? (
         <Typography
-          sx={{ flex: '1 1 100%' }}
+          sx={{ flex: "1 1 100%" }}
           color="inherit"
           variant="subtitle1"
           component="div"
@@ -105,7 +106,7 @@ function TableToolbar(props) {
         </Typography>
       ) : (
         <Typography
-          sx={{ flex: '1 1 100%' }}
+          sx={{ flex: "1 1 100%" }}
           variant="h6"
           id="tableTitle"
           component="div"
@@ -128,38 +129,68 @@ function TableToolbar(props) {
         </Tooltip>
       )}
     </Toolbar>
-  )
+  );
 }
 
-export default function Table({ rows }) {
+export default function Table({ rows, filter }) {
+  const [order, setOrder] = useState("");
+  const [orderBy, setOrderBy] = useState("");
+
   const handleRequestSort = (event, property) => {
-    console.log('property?', property)
-  }
+    setOrderBy(property);
 
-  const handleSelectAllClick = (event) => {}
+    let newOrder;
+    switch (order) {
+      case "":
+        newOrder = "asc";
+        break;
+      case "asc":
+        newOrder = "desc";
+        break;
+      case "desc":
+        newOrder = "";
+        setOrderBy("");
+        break;
+      default:
+        newOrder = "";
+        break;
+    }
 
-  const handleClick = (event, name) => {}
+    setOrder(newOrder);
+  };
 
-  const isSelected = (name) => false
+  const handleSelectAllClick = (event) => {};
+
+  const handleClick = (event, name) => {};
+
+  const isSelected = (name) => false;
+
+  const filteredRows = rows.filter(
+    (row) =>
+      row.name.toLowerCase().includes(filter) ||
+      row.email.toLowerCase().includes(filter)
+  );
+
+  const orderedRows = _.orderBy(filteredRows, orderBy, order);
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+    <Box sx={{ width: "100%" }}>
+      <Paper sx={{ width: "100%", mb: 2 }}>
         <TableToolbar numSelected={0} />
 
         <TableContainer>
           <MuiTable>
             <TableHead
               numSelected={0}
-              // order={order}
-              // orderBy={orderBy}
+              order={order}
+              orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
             <TableBody>
-              {rows.map((row) => {
-                const isItemSelected = isSelected(row.name)
+              {orderedRows.map((row) => {
+                const isItemSelected = isSelected(row.name);
 
                 return (
                   <TableRow
@@ -179,12 +210,12 @@ export default function Table({ rows }) {
                     <TableCell align="right">{row.email}</TableCell>
                     <TableCell align="right">{row.age}</TableCell>
                   </TableRow>
-                )
+                );
               })}
             </TableBody>
           </MuiTable>
         </TableContainer>
       </Paper>
     </Box>
-  )
+  );
 }
